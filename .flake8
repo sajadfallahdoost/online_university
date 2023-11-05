@@ -10,5 +10,6 @@ exclude =
     .gitkeep
     .vscode
     .idea
+    kernel
 per-file-ignores =
     */__init__.py: F401
