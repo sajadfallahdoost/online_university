@@ -1,0 +1,536 @@
+////////////////////////////
+//   1.1) Auth     //
+////////////////////////////
+Table auth.User as U {
+  id int [
+    pk,
+    increment
+  ]
+  username varchar [note: 'phone number validator']
+  password varchar
+  email email [
+    null
+  ]
+  phone_number varchar(15) [
+    unique,
+    not null
+  ]
+
+  first_name varchar(150) [
+    null
+  ]
+  last_name varchar(150) [
+    null
+  ]
+  is_active boolean [
+    default: true
+  ]
+  is_staff boolean [
+    default: false
+    ]
+  is_superuser boolean [
+    default: false
+  ]
+  secret_key varchar(43) [
+    unique,
+    not null
+  ]
+
+  created timestamp [
+    note: "Date and time of record creation"
+    ]
+  modified timestamp [
+    note: "Date and time of record modification"
+  ]
+  note: "User information model"
+}
+
+Table UserProfile as UP {
+  id int [
+    pk,
+    increment
+  ]
+  nickname varchar(30) [
+    null,
+    note: "Nickname of the user"
+  ]
+  is_email_verified boolean [
+    default: false,
+    note: "Email verification status"
+  ]
+  is_phone_number_verified boolean [
+    default: false,
+    note: "Phone number verification status"
+  ]
+  bio text [
+    null,
+    note: "User's bio"
+  ]
+  organization varchar(50) [
+    null,
+    note: "Organization"
+  ]
+  occupation varchar(50) [
+    null,
+    note: "Occupation"
+  ]
+  speciality varchar(30) [
+    null,
+    note: "Speciality"
+  ]
+  national_id varchar(10) [
+    null,
+    note: "National id"
+  ]
+  is_public boolean [
+    default: false,
+    note: "Is the profile visible for public to view"
+  ]
+
+  avatar image(110) [
+    note: "Avatar picture for profile"
+  ]
+  alternate_text varchar(100) [
+    not null,
+    note: "Description of the image"
+  ]
+  width_field int [
+    null,
+    note: "Width of the picture"
+  ]
+  height_field int [
+    null,
+    note: "Height of the picture"
+  ]
+  user int [
+    ref: - U.id,
+    note: "User related to profile"
+  ]
+  total_xp int [
+    default: 0,
+    note: "Total experience points gained"
+  ]
+  is_profile_complete boolean [
+    default: false,
+    note: "Completion status of the profile"
+  ]
+  created timestamp [
+    note: "Date and time of record creation"
+    ]
+  modified timestamp [
+    note: "Date and time of record modification"
+  ]
+  note: "Profile for the user"
+}
+
+/////////////////////////////
+//    Warehouse App       //
+///////////////////////////
+
+TableGroup warehouse {
+  warehouse.Product
+  warehouse.ProductMedia
+  warehouse.Question
+  warehouse.QuestionHelp
+  warehouse.Answer
+}
+
+Table warehouse.Product as WP {
+  id int [
+    pk,
+    increment
+  ]
+  sku varchar(100) [
+    unique,
+    not null,
+    note: "Product ID serial, maximum 50 characters"
+  ]
+  title varchar(255) [
+    not null,
+    unique,
+    note: "Product title is unique and maximum 255 characters"
+  ]
+  slug varchar(255) [
+    not null,
+    unique,
+    note: "Slug is a news paper term, A short label for "
+  ]
+  parent int [
+    ref: > WP.id, null,
+    note: "Product subcategory"
+  ]
+  scope warehouse.ScopeStatus [
+    note: "Record track basin"
+  ]
+  description text [
+    null,
+    // blank,
+    note: "Text for the description of the scope"
+  ]
+  is_buyable boolean [
+    default: false,
+    note: "Can be sold or not"
+  ]
+  bundle int [
+    ref: <> WP.id,
+    // through: WBT, 
+    note: "Course connection to bootcamp"
+  ]
+  experience int [
+    not null,
+    note: "Level of satisfaction and experience"
+  ]
+  difficulty warehouse.Difficulty [
+    note: "The hardness of the product"
+  ]
+  priority int [
+    not null,
+    note: "Product prioritization"
+  ]
+  created timestamp [
+    note: "Date and time of record creation"
+  ]
+  modified timestamp [
+    note: "Date and time of record modification"
+  ]
+  note: "Product segmentation"
+}
+
+Table warehouse.ProductMedia as WPM {
+  id int [
+    pk,
+    increment
+  ]
+  sku varchar(100) [
+    unique,
+    not null,
+    note: "Product ID serial, maximum 50 characters"
+  ]
+  product int [
+    ref: > WP.id,
+    null,
+    note: "Which product does the media belong to?"
+  ]
+  picture image(100) [
+    null,
+    // // blank,
+    note: "Photo supports jpg, jpeg, png format, this field can be empty"
+  ]
+  alternate_text varchar(100) [
+    not null,
+    note: "Description of the image"
+  ]
+  width_field int [
+    null,
+    note: "Width of the picture"
+  ]
+  height_field int [
+    null,
+    note: "Height of the picture"
+  ]
+  video file(100) [
+    null,
+    // blank,
+    note: "Photo supports mp4, mov, mkv format, this field can be empty"
+  ]
+  duration float [
+    null,
+    // blank,
+    note: "The duration of the video, which can be a decimal"
+  ]
+  pdf file(100) [
+    null,
+    // blank,
+    note: "Document file that can be empty"
+  ]
+  created timestamp [
+    note: "Date and time of record creation"
+  ]
+  modified timestamp [
+    note: "Date and time of record modification"
+  ]
+  note: "Add media to product section"
+}
+
+Table warehouse.Question as WQ {
+  id int [
+    pk,
+    increment
+  ]
+  product int [
+    ref: > WP.id,
+    null,
+    note: "Product related question"
+  ]
+  text_ varchar(255) [
+    not null,
+    note: "Question text maximum 255 characters"
+  ]
+  kind warehouse.QuestionTypes [
+    note: "Question type"
+  ]
+  description text [
+    null,
+    // blank,
+    note: "Description of the question without restrictions"
+  ]
+  created timestamp [
+    note: "Date and time of record creation"
+  ]
+  modified timestamp [
+    note: "Date and time of record modification"
+  ]
+  note: "The question section is for the product"
+}
+
+Table warehouse.QuestionHelp as WQH {
+  id int [
+    pk,
+    increment
+  ]
+  question int [
+    ref: > WQ.id,
+    not null,
+    note: "Question related question help"
+  ]
+  plain_text text [
+    null,
+    // blank,
+    note: "Simple question text"
+  ]
+  html_code text [
+    null,
+    // blank,
+    note: "HTML code to display"
+  ]
+  code text [
+    null,
+    // blank,
+    note: "Question with code style"
+  ]
+  picture image(100) [
+    null,
+    // blank,
+    note: "Photo supports jpg, jpeg, png format, this field can be empty"
+  ]
+  alternate_text varchar(100) [
+    not null,
+    note: "Description of the image"
+  ]
+  width_field int [
+    null,
+    note: "Width of the picture"
+  ]
+  height_field int [
+    null,
+    note: "Height of the picture"
+  ]
+  created timestamp [
+    note: "Date and time of record creation"
+  ]
+  modified timestamp [
+    note: "Date and time of record modification"
+  ]
+  note: "Help section for questions"
+}
+
+Table warehouse.Answer as WA {
+  id int [
+    pk,
+    increment
+  ]
+  question int [
+    ref: > WQ.id,
+    not null,
+    note: "related to which question"
+  ]
+  text_ text [
+    not null,
+    note: "The text of the answer is unlimited"
+  ]
+  is_correct boolean [
+    not null,
+    note: "The correct answer to the question"
+  ]
+  priorty int [
+    unique,
+    not null,
+    note: "prioritization"
+  ]
+  order_placeholder int [
+    null,
+    // blank,
+    note: "The order of display elements"
+  ]
+  created timestamp [
+    note: "Date and time of record creation"
+  ]
+  modified timestamp [
+    note: "Date and time of record modification"
+  ]
+  note: "Write the answer according to the question"
+}
+
+Table wawrehouse.through as WBT {
+  id int [
+    pk,
+    increment
+  ]
+  from_product int [
+    ref: > WP.id
+  ]
+  to_product int [
+    ref: > WP.id,
+    note: "Choosing a product to be bootcamp"
+  ]
+  created timestamp [
+    note: "Date and time of record creation"
+  ]
+  modified timestamp [
+    note: "Date and time of record modification"
+  ]
+  note: "Intermediate model to connect with product model"
+}
+
+Enum warehouse.ScopeStatus {
+  Division [note: 'دانشکده']
+  Bootcamp [note: 'بوت کمپ']
+  Course [note: 'دوره']
+  Lesson [note: 'درس']
+  Chapter [note: 'قسمت']
+  Project  [note: 'پروژه']
+  Practice [note: 'تمرین']
+}
+
+Enum warehouse.QuestionTypes {
+  checkbox
+  radio
+  placeholder
+  conditional
+  code
+}
+
+Enum warehouse.Difficulty {
+  beginner
+  intermediate
+  advance
+  productive
+}
+
+Table Cart {
+  id BIGINT [primary key]
+  slug VARCHAR
+  user INT [ref: - U.id]
+  product BIGINT [ref: <> WP.id]
+}
+
+Table Expense {
+  id BIGINT [primary key]
+  product int [
+    ref: > WP.id,
+    null
+  ]
+  price BIGINT
+}
+
+Table ProductOrder {
+  id BIGINT [primary key]
+  created DATETIME
+  modified DATETIME
+  cost DECIMAL
+  // cost_without_discount DECIMAL
+  is_refunded BOOLEAN
+  order BIGINT [ref: > Order.id]
+  product BIGINT [ref: > WP.id]
+}
+
+Table Order {
+  id BIGINT [primary key]
+  created DATETIME
+  modified DATETIME
+  transaction_number VARCHAR
+  status VARCHAR
+  admin_note TEXT
+  total_cost DECIMAL
+  // total_discount DECIMAL
+  // total_cost_without_discount DECIMAL
+  user INT [ref: - U.id]
+  // vouchers BIGINT
+}
+
+////////////////////////////
+//     1) Subscription    //
+////////////////////////////
+
+
+Table Feature as F {
+  id BIGINT [primary key]
+  title varchar(255) [
+    not null,
+    unique
+  ]
+  description text
+  created DATETIME
+  modified DATETIME
+}
+
+Table Plan as P {
+  id BIGINT [primary key]
+  uuid uuid
+  title varchar(255)
+  status Subscription.PlanStatus
+  description text
+  price decimal
+  duration_in_days int
+  // time_pending_payment
+  features int [ref: <> F.id]
+  created DATETIME
+  modified DATETIME
+}
+
+Table Enrollment as EN {
+  id BIGINT [primary key]
+  user int [ref: > U.id]
+  plan int [ref: > P.id]
+  start_date DATETIME
+  end_date DATETIME
+  state Subscription.EnrollmentState
+  created DATETIME
+  modified DATETIME
+}
+
+Table Payment as Pa {
+  id BIGINT [primary key]
+  enrollment int [ref: - EN.id]
+  amount decimal
+  payment_date DATETIME
+  payment_method Subscription.PaymentMethod
+  payment_status Subscription.PaymentStatus
+  created DATETIME
+  modified DATETIME
+}
+
+Enum Subscription.PaymentStatus {
+  SUCCESS
+  PENDING
+  FAILED
+}
+
+Enum Subscription.PaymentMethod {
+  CREDIT_CARD
+  PAYPAL
+}
+
+Enum Subscription.EnrollmentState {
+  ACTIVE
+  // INACTIVE
+  CANCELED
+  EXPIRED
+  // TERMINATED
+}
+
+Enum Subscription.PlanStatus {
+  one_month
+  three_month
+  six_month
+}
