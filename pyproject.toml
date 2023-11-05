@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "online-university"
+version = "0.1.0"
+description = ""
+authors = ["sajad <fallahdoostsajad@gmail.com>"]
+readme = "README.md"
+packages = [{include = "online_university"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^4.2.7"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
